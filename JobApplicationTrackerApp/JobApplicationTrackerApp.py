@@ -4,14 +4,13 @@ from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
+from kivy.uix.screenmanager import ScreenManager,Screen
+from kivy.uix.screenmanager import FadeTransition
 
 class TrackerInfo(GridLayout):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
         self.cols = 2
-        
-        # Gather user info.
-
         # Gather the position that is being applied for
         self.add_widget(Label(text="Job Position"))
         self.posInput = TextInput(multiline = False)
@@ -28,7 +27,9 @@ class TrackerInfo(GridLayout):
         self.add_widget(self.SubmittedInput)
 
         # Added a blank label for asthetic purposes
-        self.add_widget(Label(text=""))
+        self.backButton = Button(text="Return to Home Page",font_size=14)
+        self.backButton.bind(on_press=self.go_home)
+        self.add_widget(self.backButton)
 
         # Create a submit button
         self.submitButton = Button(text="Submit", font_size=14)
@@ -44,11 +45,46 @@ class TrackerInfo(GridLayout):
         DOS = self.SubmittedInput.text
         print("Job Application Info")
         print(position,company,DOS)
+
+    def go_home(self,instance):
+        print("Going to Home Page")
+        jobApp.screen_manager.current = "start"
+
+
+
+class StartUpPage(GridLayout):
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
+        self.cols = 1
+        self.add_widget(Label(text="Job Tracker Application",font_size='20sp',valign="top",halign="center"))
+        self.infoButton = Button(text="Enter Newly Filed Job Application")
+        self.infoButton.bind(on_press=self.go_fill_out_info)
+        self.add_widget(self.infoButton)
+        self.viewFiledApps = Button(text="View Filed Application")
+        self.add_widget(self.viewFiledApps)
+
+    def go_fill_out_info(self,instance):
+        jobApp.screen_manager.current = "userData"
         
 class JobTrackerApp(App):
     def build(self):
-        return TrackerInfo()
+        # Screen Manager manages all the screens in the application
+        self.screen_manager = ScreenManager()
+        # Add Starting Page
+        self.startPage = StartUpPage()
+        screen1 = Screen(name="start")
+        screen1.add_widget(self.startPage)
+        self.screen_manager.add_widget(screen1)
+        # Add Info Page to Screen
+        self.addInfoPage = TrackerInfo()
+        screen2 = Screen(name="userData")
+        screen2.add_widget(self.addInfoPage)
+        self.screen_manager.add_widget(screen2)
+        return self.screen_manager
+
+        
          
 
 if __name__ == "__main__":
-    JobTrackerApp().run()
+    jobApp = JobTrackerApp()
+    jobApp.run()
