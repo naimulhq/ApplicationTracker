@@ -59,10 +59,7 @@ class TrackerInfo(GridLayout):
         self.posInput.text=''
         self.companyInput.text=''
         self.SubmittedInput.text=''
-        # Print Data
-        print("Job Application Info")
-        print(position,company,DOS)
-
+     
     def go_home(self,instance):
         print("Going to Home Page")
         jobApp.screen_manager.current = "start"
@@ -86,7 +83,8 @@ class StartUpPage(GridLayout):
 
     def viewMyApps(self,instance):
         jobApp.screen_manager.current = "viewApps"
-        db.printDB()
+        jobApp.viewApps.generateRows()
+        
 
 class ViewApplicationsPage(FloatLayout):
     # Create a page designated for the user to see all submissions made Bounds x[0 800] y [0 500
@@ -98,6 +96,7 @@ class ViewApplicationsPage(FloatLayout):
         self.submissionLabel = Label(text="Date of Submission",pos=(532,400), size=(266,100),size_hint=(None,None))
         self.returnButton = Button(text="Home Page", pos=(0,500),size=(200,100),size_hint=(None,None))
         self.returnButton.bind(on_press=self.viewToHome)
+        self.CurrentPosition = (0,300)
         with self.returnButton.canvas.before:
             Color(33/255,80/255,228/255,1)
             Rectangle(pos=self.returnButton.pos,size = self.returnButton.size)
@@ -118,9 +117,38 @@ class ViewApplicationsPage(FloatLayout):
         self.add_widget(self.companyLabel)
         self.add_widget(self.submissionLabel)
         self.add_widget(self.returnButton)
-        
+
     def viewToHome(self,instance):
         jobApp.screen_manager.current = "start"
+
+    def addRows(self,allData):
+        position = allData[0]
+        company = allData[1]
+        submitted = allData[2]
+        p_label = Label(text=str(position),pos=self.CurrentPosition, size=(266,100),size_hint=(None,None))
+        c_label = Label(text=str(company),pos=(self.CurrentPosition[0]+266, self.CurrentPosition[1]), size=(266,100),size_hint=(None,None))
+        s_label = Label(text=str(submitted),pos=(self.CurrentPosition[0]+532, self.CurrentPosition[1]), size=(266,100),size_hint=(None,None))
+        with p_label.canvas.before:
+            Color(33/255,42/255,228/255,1)
+            Rectangle(pos=p_label.pos,size = p_label.size)
+        with c_label.canvas.before:
+            Color(33/255,42/255,228/255,1)
+            Rectangle(pos=c_label.pos,size = c_label.size)
+        with s_label.canvas.before:
+            Color(33/255,42/255,228/255,1)
+            Rectangle(pos=s_label.pos,size = s_label.size)
+        self.CurrentPosition = (0,self.CurrentPosition[1]-100)
+        self.add_widget(p_label)
+        self.add_widget(c_label)
+        self.add_widget(s_label)
+        
+    def generateRows(self):
+        self.allData = db.getAllData()
+        print(self.allData)
+        for i in self.allData:
+            self.addRows(i)
+        self.allData = None
+        
 
 
 class JobTrackerApp(App):
@@ -148,5 +176,4 @@ class JobTrackerApp(App):
 if __name__ == "__main__":
     jobApp = JobTrackerApp()
     db = userInfoDatabase()
-    db.createDB()
     jobApp.run()
