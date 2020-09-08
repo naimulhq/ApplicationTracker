@@ -22,6 +22,10 @@ class userInfoDatabase:
     def printDB(self):
         self.cur.execute("SELECT * FROM users")
         print(self.cur.fetchall())
+
+    def getAllData(self):
+        self.cur.execute("SELECT * FROM users")
+        return self.cur.fetchall()
         
 
 
