@@ -1,11 +1,17 @@
 import kivy
+from UserData import UserData
+from InfoDatabase import userInfoDatabase
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.uix.screenmanager import ScreenManager,Screen
 from kivy.uix.screenmanager import FadeTransition
+from kivy.graphics import Rectangle, Color
+from kivy.uix.popup import Popup
 
 class TrackerInfo(GridLayout):
     def __init__(self,**kwargs):
@@ -40,9 +46,20 @@ class TrackerInfo(GridLayout):
 
     def submit_info(self,instance):
         # Get all of the values from input
+        popup = Popup(title='Submission Successful!',content=Button(text='Application successfully stored. Click to close!'),size_hint=(None, None), size=(400, 400))
+        popup.open()
+        popup.content.bind(on_press=popup.dismiss)
+        # Retrieve Data
         position = self.posInput.text
         company = self.companyInput.text
         DOS = self.SubmittedInput.text
+        self.userData = UserData(position,company,DOS)
+        db.insertDB(self.userData)
+        # Clear text inputs
+        self.posInput.text=''
+        self.companyInput.text=''
+        self.SubmittedInput.text=''
+        # Print Data
         print("Job Application Info")
         print(position,company,DOS)
 
@@ -61,11 +78,51 @@ class StartUpPage(GridLayout):
         self.infoButton.bind(on_press=self.go_fill_out_info)
         self.add_widget(self.infoButton)
         self.viewFiledApps = Button(text="View Filed Application")
+        self.viewFiledApps.bind(on_press=self.viewMyApps)
         self.add_widget(self.viewFiledApps)
 
     def go_fill_out_info(self,instance):
         jobApp.screen_manager.current = "userData"
+
+    def viewMyApps(self,instance):
+        jobApp.screen_manager.current = "viewApps"
+        db.printDB()
+
+class ViewApplicationsPage(FloatLayout):
+    # Create a page designated for the user to see all submissions made Bounds x[0 800] y [0 500
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
+        self.ViewTitle = Label(text="Application Submission History",pos=(50,500),size=(750,100),size_hint=(None,None))
+        self.jobLabel = Label(text="Job Position",pos=(0,400), size=(266,100),size_hint=(None,None))
+        self.companyLabel = Label(text="Company",pos=(266,400), size=(266,100),size_hint=(None,None))
+        self.submissionLabel = Label(text="Date of Submission",pos=(532,400), size=(266,100),size_hint=(None,None))
+        self.returnButton = Button(text="Home Page", pos=(0,500),size=(200,100),size_hint=(None,None))
+        self.returnButton.bind(on_press=self.viewToHome)
+        with self.returnButton.canvas.before:
+            Color(33/255,80/255,228/255,1)
+            Rectangle(pos=self.returnButton.pos,size = self.returnButton.size)
+        with self.ViewTitle.canvas.before:
+            Color(33/255,42/255,228/255,1)
+            Rectangle(pos=self.ViewTitle.pos,size = self.ViewTitle.size)
+        with self.jobLabel.canvas.before:
+            Color(33/255,42/255,228/255,1)
+            Rectangle(pos=self.jobLabel.pos,size = self.jobLabel.size)
+        with self.companyLabel.canvas.before:
+            Color(33/255,42/255,228/255,1)
+            Rectangle(pos=self.companyLabel.pos,size = self.companyLabel.size)
+        with self.submissionLabel.canvas.before:
+            Color(33/255,42/255,228/255,1)
+            Rectangle(pos=self.submissionLabel.pos,size = self.submissionLabel.size)
+        self.add_widget(self.ViewTitle)
+        self.add_widget(self.jobLabel)
+        self.add_widget(self.companyLabel)
+        self.add_widget(self.submissionLabel)
+        self.add_widget(self.returnButton)
         
+    def viewToHome(self,instance):
+        jobApp.screen_manager.current = "start"
+
+
 class JobTrackerApp(App):
     def build(self):
         # Screen Manager manages all the screens in the application
@@ -80,11 +137,16 @@ class JobTrackerApp(App):
         screen2 = Screen(name="userData")
         screen2.add_widget(self.addInfoPage)
         self.screen_manager.add_widget(screen2)
+        # Add View Apps Page
+        self.viewApps = ViewApplicationsPage()
+        screen3 = Screen(name="viewApps")
+        screen3.add_widget(self.viewApps)
+        self.screen_manager.add_widget(screen3)
         return self.screen_manager
 
-        
-         
-
+   
 if __name__ == "__main__":
     jobApp = JobTrackerApp()
+    db = userInfoDatabase()
+    db.createDB()
     jobApp.run()
