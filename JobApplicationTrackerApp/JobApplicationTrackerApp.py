@@ -1,6 +1,6 @@
 import kivy
-from UserData import UserData
-from InfoDatabase import userInfoDatabase
+from UserData import UserData, PotentialApps
+from InfoDatabase import userInfoDatabase, potentialAppsDatabase
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
@@ -12,6 +12,8 @@ from kivy.uix.screenmanager import ScreenManager,Screen
 from kivy.uix.screenmanager import FadeTransition
 from kivy.graphics import Rectangle, Color
 from kivy.uix.popup import Popup
+from kivy.uix.scrollview import ScrollView
+from kivy.core.window import Window
 
 class TrackerInfo(GridLayout):
     def __init__(self,**kwargs):
@@ -65,7 +67,7 @@ class TrackerInfo(GridLayout):
         jobApp.screen_manager.current = "start"
 
 
-
+# Start up page
 class StartUpPage(GridLayout):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
@@ -77,6 +79,15 @@ class StartUpPage(GridLayout):
         self.viewFiledApps = Button(text="View Filed Application")
         self.viewFiledApps.bind(on_press=self.viewMyApps)
         self.add_widget(self.viewFiledApps)
+        self.viewPotentialApps = Button(text="View Potentials Job Applications")
+        self.viewPotentialApps.bind(on_press=self.go_potential_apps)
+        self.add_widget(self.viewPotentialApps)
+        self.enterPotentialApps = Button(text="Enter Potentials Job Applications")
+        self.enterPotentialApps.bind(on_press=self.enter_potential_apps)
+        self.add_widget(self.enterPotentialApps)
+
+    def enter_potential_apps(self,instance):
+        jobApp.screen_manager.current= "enterApps"
 
     def go_fill_out_info(self,instance):
         jobApp.screen_manager.current = "userData"
@@ -84,6 +95,9 @@ class StartUpPage(GridLayout):
     def viewMyApps(self,instance):
         jobApp.screen_manager.current = "viewApps"
         jobApp.viewApps.generateRows()
+
+    def go_potential_apps(self,instance):
+        jobApp.screen_manager.current = "potentialApps"
         
 
 class ViewApplicationsPage(FloatLayout):
@@ -151,6 +165,84 @@ class ViewApplicationsPage(FloatLayout):
         
 
 
+class PotentialApplicationsPage(ScrollView):
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
+        self.a_layout = FloatLayout()
+        self.size_hint=(1,None)
+        self.size=(Window.width, Window.height)
+        self.titleLabel = Label(text="Potential Applications", pos=(0,500),size=(800,100),size_hint=(1,None))
+        with self.titleLabel.canvas.before:
+            Color(33/255,42/255,228/255,1)
+            self.titleRect = Rectangle(pos=self.titleLabel.pos,size = self.titleLabel.size)
+        self.bind(pos=self.update_rect,
+                  size=self.update_rect)
+        self.a_layout.add_widget(self.titleLabel)
+        self.add_widget(self.a_layout)
+
+    def update_rect(self, *args):
+        self.titleRect.pos = self.pos
+        self.titleRect.size = self.size
+
+class enterApps(GridLayout):
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
+        self.cols = 2
+        # Gather the position that is being applied for
+        self.add_widget(Label(text="Job Position"))
+        self.posInput = TextInput(multiline = False)
+        self.add_widget(self.posInput)
+
+        # Gather info regarding the company that is being applied to
+        self.add_widget(Label(text="Company"))
+        self.companyInput = TextInput(multiline = False)
+        self.add_widget(self.companyInput)
+
+        # User enters data when application was applied for
+        self.add_widget(Label(text="Location"))
+        self.LocationInput = TextInput(multiline = False)
+        self.add_widget(self.LocationInput)
+
+         # User enters data when application was applied for
+        self.add_widget(Label(text="Completed?"))
+        self.CompletionInput = TextInput(multiline = False)
+        self.add_widget(self.CompletionInput)
+
+        # Added a blank label for asthetic purposes
+        self.backButton = Button(text="Return to Home Page",font_size=14)
+        self.backButton.bind(on_press=self.go_home)
+        self.add_widget(self.backButton)
+
+        # Create a submit button
+        self.submitButton = Button(text="Submit", font_size=14)
+        r,g,b= 33,42,228
+        self.submitButton.background_color = [float(r)/255,float(g)/255,float(b)/255,1]
+        self.submitButton.bind(on_press=self.submit_info) # When button is pressed, will go to method submitInfo
+        self.add_widget(self.submitButton)
+
+    def submit_info(self,instance):
+        # Get all of the values from input
+        popup = Popup(title='Submission Successful!',content=Button(text='Potential Job Application successfully stored. Click to close!'),size_hint=(None, None), size=(400, 400))
+        popup.open()
+        popup.content.bind(on_press=popup.dismiss)
+        # Retrieve Data
+        position = self.posInput.text
+        company = self.companyInput.text
+        location = self.LocationInput.text
+        submitted = self.CompletionInput.text
+        self.potentialApps = PotentialApps(position,company,location,submitted)
+        potentialAppsDB.insertDB(self.potentialApps)
+        # Clear text inputs
+        self.posInput.text=''
+        self.companyInput.text=''
+        self.LocationInput.text=''
+        self.CompletionInput.text=''
+        potentialAppsDB.printDB()
+     
+    def go_home(self,instance):
+        print("Going to Home Page")
+        jobApp.screen_manager.current = "start"
+
 class JobTrackerApp(App):
     def build(self):
         # Screen Manager manages all the screens in the application
@@ -170,10 +262,21 @@ class JobTrackerApp(App):
         screen3 = Screen(name="viewApps")
         screen3.add_widget(self.viewApps)
         self.screen_manager.add_widget(screen3)
+        # Add View Potential Applications
+        self.potentialApps = PotentialApplicationsPage()
+        screen4 = Screen(name="potentialApps")
+        screen4.add_widget(self.potentialApps)
+        self.screen_manager.add_widget(screen4)
+        # Enter Potential Job Apps
+        self.enterApps = enterApps()
+        screen5 = Screen(name="enterApps")
+        screen5.add_widget(self.enterApps)
+        self.screen_manager.add_widget(screen5)
         return self.screen_manager
 
    
 if __name__ == "__main__":
     jobApp = JobTrackerApp()
     db = userInfoDatabase()
+    potentialAppsDB = potentialAppsDatabase()
     jobApp.run()
