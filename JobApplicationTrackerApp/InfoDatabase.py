@@ -28,6 +28,11 @@ class userInfoDatabase:
         self.cur.execute("SELECT * FROM users")
         return self.cur.fetchall()
 
+    def deleteAllData(self):
+        self.conn = sqlite3.connect('userInfo.db')
+        self.cur.execute("DELETE FROM users")
+        self.conn.commit()
+
 
 class potentialAppsDatabase:
      def __init__(self):
