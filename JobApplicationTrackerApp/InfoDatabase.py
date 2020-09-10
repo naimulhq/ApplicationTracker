@@ -59,6 +59,11 @@ class potentialAppsDatabase:
      def getAllData(self):
         self.cur.execute("SELECT * FROM potentialApps")
         return self.cur.fetchall()
+
+     def deleteAllData(self):
+        self.conn = sqlite3.connect('potentialAppsInfo.db')
+        self.cur.execute("DELETE FROM potentialApps")
+        self.conn.commit()
         
 
 
