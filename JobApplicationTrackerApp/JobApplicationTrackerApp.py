@@ -211,6 +211,9 @@ class ViewApplicationsPage(FloatLayout):
 class PotentialApplicationsPage(ScrollView):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
+        self.generatePage()
+
+    def generatePage(self):
         self.a_layout = FloatLayout()
         print(self.height,self.a_layout.height)
         self.scroll_distance = 100
@@ -222,13 +225,16 @@ class PotentialApplicationsPage(ScrollView):
         self.do_scroll_x = False
         self.do_scroll_y = True
         # Create all the labels for basic structure
-        self.titleLabel = Label(text="Potential Application Submissions", pos=(0,500), size=(800,100), size_hint=(None,None))
+        self.titleLabel = Label(text="Potential Application Submissions", pos=(200,500), size=(400,100), size_hint=(None,None))
         self.positionLabel = Label(text="Position", pos=(0,400), size=(200,100), size_hint=(None,None))
         self.companyLabel = Label(text="Company", pos=(200,400), size=(200,100), size_hint=(None,None))
         self.locationLabel = Label(text="Location", pos=(400,400), size=(200,100), size_hint=(None,None))
         self.submissionLabel = Label(text="Completed?", pos=(600,400), size=(200,100), size_hint=(None,None))
+        self.homeButton = Button(text="Return Home", pos=(0,500),size=(200,100), size_hint=(None,None))
+        self.homeButton.bind(on_press=self.goHome)
+        self.clearAllButton = Button(text="Clear All", pos=(600,500), size=(200,100), size_hint=(None,None))
+        self.clearAllButton.bind(on_press=self.clearAll)
         self.CurrentPosition = (0,300)
-        
         
         # Use canvas to put labels in specific location
         with self.titleLabel.canvas.before:
@@ -246,13 +252,47 @@ class PotentialApplicationsPage(ScrollView):
         with self.submissionLabel.canvas.before:
             Color(33/255,80/255,228/255,1)
             Rectangle(pos=self.submissionLabel.pos, size=self.submissionLabel.size)
+        with self.homeButton.canvas.before:
+            Rectangle(pos=self.homeButton.pos, size=self.homeButton.size)
+        with self.clearAllButton.canvas.before:
+            Rectangle(pos=self.clearAllButton.pos, size=self.clearAllButton.size)
+
+
         # Put all widgets into layout, then to scrollview
         self.a_layout.add_widget(self.titleLabel)
         self.a_layout.add_widget(self.positionLabel)
         self.a_layout.add_widget(self.companyLabel)
         self.a_layout.add_widget(self.locationLabel)
         self.a_layout.add_widget(self.submissionLabel)
+        self.a_layout.add_widget(self.homeButton)
+        self.a_layout.add_widget(self.clearAllButton)
         self.add_widget(self.a_layout)
+
+    def goHome(self,instance):
+        jobApp.screen_manager.current="start"
+
+    def clearAll(self,instance):
+        # Create a popup with two buttons
+        self.popup = Popup(title="Are you sure? Clearing all entries can not be undone.",size_hint=(None,None), size=(400,400))
+        box = BoxLayout()
+        yesButton = Button(text="Yes")
+        noButton = Button(text = "No")
+        # Bind the button to two options
+        noButton.bind(on_press=self.popup.dismiss)
+        yesButton.bind(on_press=self.deleteAllEntries)
+        # Add buttons to popup widget
+        box.add_widget(yesButton)
+        box.add_widget(noButton)
+        self.popup.content = box
+        self.popup.open()
+
+    def deleteAllEntries(self,instance):
+        potentialAppsDB.deleteAllData()
+        self.generateRows()
+        self.popup.dismiss()
+        self.clear_widgets()
+        self.generatePage()
+
 
     def generateRows(self):
         self.allData = potentialAppsDB.getAllData()
