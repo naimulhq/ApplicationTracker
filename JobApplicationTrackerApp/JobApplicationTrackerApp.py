@@ -1,6 +1,6 @@
 import kivy
-from kivy.config import Config
-Config.set('graphics', 'resizable', False)
+#from kivy.config import Config
+#Config.set('graphics', 'resizable', False)
 from UserData import UserData, PotentialApps
 from InfoDatabase import userInfoDatabase, potentialAppsDatabase
 from kivy.app import App
@@ -218,23 +218,26 @@ class PotentialApplicationsPage(ScrollView):
         print(self.height,self.a_layout.height)
         self.scroll_distance = 100
         self.scroll_timeout = 2000
-        
+        self.height = 600
+        self.a_layout.height=600
+        self.a_layout.size_hint_y=None
+        self.size_hint_y=None
         self.bar_color=[1,0,0,0]
         self.bar_width=10
         self.scroll_type = ['bars', 'content']
         self.do_scroll_x = False
         self.do_scroll_y = True
         # Create all the labels for basic structure
-        self.titleLabel = Label(text="Potential Application Submissions", pos=(200,500), size=(400,100), size_hint=(None,None))
-        self.positionLabel = Label(text="Position", pos=(0,400), size=(200,100), size_hint=(None,None))
-        self.companyLabel = Label(text="Company", pos=(200,400), size=(200,100), size_hint=(None,None))
-        self.locationLabel = Label(text="Location", pos=(400,400), size=(200,100), size_hint=(None,None))
-        self.submissionLabel = Label(text="Completed?", pos=(600,400), size=(200,100), size_hint=(None,None))
-        self.homeButton = Button(text="Return Home", pos=(0,500),size=(200,100), size_hint=(None,None))
+        self.titleLabel = Label(text="Potential Application Submissions", pos=(200,1000), size=(400,100), size_hint=(None,None))
+        self.positionLabel = Label(text="Position", pos=(0,900), size=(200,100), size_hint=(None,None))
+        self.companyLabel = Label(text="Company", pos=(200,900), size=(200,100), size_hint=(None,None))
+        self.locationLabel = Label(text="Location", pos=(400,900), size=(200,100), size_hint=(None,None))
+        self.submissionLabel = Label(text="Completed?", pos=(600,900), size=(200,100), size_hint=(None,None))
+        self.homeButton = Button(text="Return Home", pos=(0,1000),size=(200,100), size_hint=(None,None))
         self.homeButton.bind(on_press=self.goHome)
-        self.clearAllButton = Button(text="Clear All", pos=(600,500), size=(200,100), size_hint=(None,None))
+        self.clearAllButton = Button(text="Clear All", pos=(600,1000), size=(200,100), size_hint=(None,None))
         self.clearAllButton.bind(on_press=self.clearAll)
-        self.CurrentPosition = (0,300)
+        self.CurrentPosition = (0,800)
         
         # Use canvas to put labels in specific location
         with self.titleLabel.canvas.before:
@@ -256,7 +259,6 @@ class PotentialApplicationsPage(ScrollView):
             Rectangle(pos=self.homeButton.pos, size=self.homeButton.size)
         with self.clearAllButton.canvas.before:
             Rectangle(pos=self.clearAllButton.pos, size=self.clearAllButton.size)
-
 
         # Put all widgets into layout, then to scrollview
         self.a_layout.add_widget(self.titleLabel)
@@ -321,6 +323,7 @@ class PotentialApplicationsPage(ScrollView):
             Rectangle(pos=s_label.pos,size = s_label.size)
         # Change current position for next row. Add Labels to FloatLayout
         self.CurrentPosition = (0,self.CurrentPosition[1]-100)
+        self.a_layout.height += 100
         self.a_layout.add_widget(p_label)
         self.a_layout.add_widget(c_label)
         self.a_layout.add_widget(l_label)
