@@ -1,6 +1,6 @@
 import kivy
-#from kivy.config import Config
-#Config.set('graphics', 'resizable', False)
+from kivy.config import Config
+Config.set('graphics', 'resizable', False)
 from UserData import UserData, PotentialApps
 from InfoDatabase import userInfoDatabase, potentialAppsDatabase
 from kivy.app import App
@@ -66,7 +66,6 @@ class TrackerInfo(GridLayout):
         self.SubmittedInput.text=''
      
     def go_home(self,instance):
-        print("Going to Home Page")
         jobApp.screen_manager.current = "start"
 
 
@@ -103,6 +102,7 @@ class StartUpPage(GridLayout):
         jobApp.screen_manager.current = "potentialApps"
         jobApp.potentialApps.generateRows()
         
+        
 
 class ViewApplicationsPage(FloatLayout):
     # Create a page designated for the user to see all submissions made Bounds x[0 800] y [0 500
@@ -132,7 +132,6 @@ class ViewApplicationsPage(FloatLayout):
     # In charge of deleting all entires
     def deleteAllEntries(self,instance):
         db.deleteAllData()
-        self.generateRows()
         self.popup.dismiss()
         self.clear_widgets()
         self.generatePage()
@@ -208,36 +207,25 @@ class ViewApplicationsPage(FloatLayout):
         self.add_widget(self.returnButton)
         self.add_widget(self.clearButton)
         
-class PotentialApplicationsPage(ScrollView):
+class PotentialApplicationsPage(FloatLayout):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
-        self.generatePage()
-
-    def generatePage(self):
-        self.a_layout = FloatLayout()
-        print(self.height,self.a_layout.height)
-        self.scroll_distance = 100
-        self.scroll_timeout = 2000
-        self.height = 600
-        self.a_layout.height=600
-        self.a_layout.size_hint_y=None
-        self.size_hint_y=None
-        self.bar_color=[1,0,0,0]
-        self.bar_width=10
-        self.scroll_type = ['bars', 'content']
-        self.do_scroll_x = False
-        self.do_scroll_y = True
+        # These lists are used to determine how to delete widgets
+        self.p_labels = []
+        self.c_labels = []
+        self.l_labels = []
+        self.s_labels = []
+       
         # Create all the labels for basic structure
-        self.titleLabel = Label(text="Potential Application Submissions", pos=(200,1000), size=(400,100), size_hint=(None,None))
-        self.positionLabel = Label(text="Position", pos=(0,900), size=(200,100), size_hint=(None,None))
-        self.companyLabel = Label(text="Company", pos=(200,900), size=(200,100), size_hint=(None,None))
-        self.locationLabel = Label(text="Location", pos=(400,900), size=(200,100), size_hint=(None,None))
-        self.submissionLabel = Label(text="Completed?", pos=(600,900), size=(200,100), size_hint=(None,None))
-        self.homeButton = Button(text="Return Home", pos=(0,1000),size=(200,100), size_hint=(None,None))
+        self.titleLabel = Label(text="Potential Application Submissions", pos=(200,500), size=(400,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
+        self.positionLabel = Label(text="Position", pos=(0,400), size=(200,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
+        self.companyLabel = Label(text="Company", pos=(200,400), size=(200,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
+        self.locationLabel = Label(text="Location", pos=(400,400), size=(200,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
+        self.submissionLabel = Label(text="Completed?", pos=(600,400), size=(200,100), size_hint=(None,None),color = [0,0,0,1], font_size = '20sp')
+        self.homeButton = Button(text="Return Home", pos=(0,500),size=(200,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
         self.homeButton.bind(on_press=self.goHome)
-        self.clearAllButton = Button(text="Clear All", pos=(600,1000), size=(200,100), size_hint=(None,None))
+        self.clearAllButton = Button(text="Clear All", pos=(600,500), size=(200,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
         self.clearAllButton.bind(on_press=self.clearAll)
-        self.CurrentPosition = (0,800)
         
         # Use canvas to put labels in specific location
         with self.titleLabel.canvas.before:
@@ -259,16 +247,36 @@ class PotentialApplicationsPage(ScrollView):
             Rectangle(pos=self.homeButton.pos, size=self.homeButton.size)
         with self.clearAllButton.canvas.before:
             Rectangle(pos=self.clearAllButton.pos, size=self.clearAllButton.size)
+        with self.canvas.before:
+            Color(216/255,69/255,30/255,1)
+            Rectangle(pos=(0,0), size=(1000,400))
 
-        # Put all widgets into layout, then to scrollview
-        self.a_layout.add_widget(self.titleLabel)
-        self.a_layout.add_widget(self.positionLabel)
-        self.a_layout.add_widget(self.companyLabel)
-        self.a_layout.add_widget(self.locationLabel)
-        self.a_layout.add_widget(self.submissionLabel)
-        self.a_layout.add_widget(self.homeButton)
-        self.a_layout.add_widget(self.clearAllButton)
-        self.add_widget(self.a_layout)
+        # Put all widgets into  float layout. None of these widgets will change whether new material is added or deleted
+        self.add_widget(self.titleLabel)
+        self.add_widget(self.positionLabel)
+        self.add_widget(self.companyLabel)
+        self.add_widget(self.locationLabel)
+        self.add_widget(self.submissionLabel)
+        self.add_widget(self.homeButton)
+        self.add_widget(self.clearAllButton)
+
+        # Create a scroll object and settings
+        self.scroll = ScrollView()
+        
+        self.scroll.scroll_timeout = 200
+        self.scroll.size=(Window.width,Window.height)
+        self.scroll.pos_hint={'top': .6665, 'center_x':0.5}
+        self.scroll.bar_color=[0,0,0,1]
+        self.scroll.bar_inactive_color = [0,0,0,1]
+        self.scroll.bar_width = 10
+        self.scroll.scroll_type=['bars', 'content']
+        
+        self.scroll.do_scroll_x = False
+        self.scroll.do_scroll_y = True
+        self.layout = GridLayout(size_hint=(1, None), height=100, pos_hint={'top': .6665, 'center_x':0.5}, cols=4)
+        self.scroll.add_widget(self.layout)
+        self.add_widget(self.scroll)
+        
 
     def goHome(self,instance):
         jobApp.screen_manager.current="start"
@@ -290,46 +298,43 @@ class PotentialApplicationsPage(ScrollView):
 
     def deleteAllEntries(self,instance):
         potentialAppsDB.deleteAllData()
-        self.generateRows()
         self.popup.dismiss()
-        self.clear_widgets()
-        self.generatePage()
-
-
+        for i in range(self.length):
+            self.a_layout.clear_widgets([self.p_labels[i], self.l_labels[i], self.s_labels[i], self.c_labels[i]])
+        self.p_labels = []
+        self.c_labels = []
+        self.l_labels = []
+        self.s_labels = []
+        
     def generateRows(self):
         self.allData = potentialAppsDB.getAllData()
+        self.length = len(self.allData)
         for i in self.allData:
             self.addRows(i)
         self.allData = None
+       
 
     def addRows(self,allData):
         # Create labels that will hold the actual values from database
-        p_label = Label(text=str(allData[0]),pos=self.CurrentPosition, size=(200,100),size_hint=(None,None))
-        c_label = Label(text=str(allData[1]),pos=(self.CurrentPosition[0]+200, self.CurrentPosition[1]), size=(200,100),size_hint=(None,None))
-        l_label = Label(text=str(allData[2]),pos=(self.CurrentPosition[0]+400, self.CurrentPosition[1]), size=(200,100),size_hint=(None,None))
-        s_label = Label(text=str(allData[3]),pos=(self.CurrentPosition[0]+600, self.CurrentPosition[1]), size=(200,100),size_hint=(None,None))
+        self.p_label = Label(text=str(allData[0]),color = [0,0,0,1], font_size = '20sp')
+        self.c_label = Label(text=str(allData[1]),color = [0,0,0,1], font_size = '20sp')
+        self.l_label = Label(text=str(allData[2]),color = [0,0,0,1], font_size = '20sp')
+        self.s_label = Label(text=str(allData[3]),color = [0,0,0,1], font_size = '20sp')
+        self.p_labels.append(self.p_label)
+        self.l_labels.append(self.l_label)
+        self.c_labels.append(self.c_label)
+        self.s_labels.append(self.s_label)
         # Create Recntangle and Change Color for each row
-        with p_label.canvas.before:
-            Color(33/255,42/255,228/255,1)
-            Rectangle(pos=p_label.pos,size = p_label.size)
-        with c_label.canvas.before:
-            Color(33/255,42/255,228/255,1)
-            Rectangle(pos=c_label.pos,size = c_label.size)
-        with l_label.canvas.before:
-            Color(33/255,42/255,228/255,1)
-            Rectangle(pos=l_label.pos,size = l_label.size)
-        with s_label.canvas.before:
-            Color(33/255,42/255,228/255,1)
-            Rectangle(pos=s_label.pos,size = s_label.size)
+       
         # Change current position for next row. Add Labels to FloatLayout
-        self.CurrentPosition = (0,self.CurrentPosition[1]-100)
-        self.a_layout.height += 100
-        self.a_layout.add_widget(p_label)
-        self.a_layout.add_widget(c_label)
-        self.a_layout.add_widget(l_label)
-        self.a_layout.add_widget(s_label)
+        self.layout.height += 100
+        self.layout.add_widget(self.p_label)
+        self.layout.add_widget(self.c_label)
+        self.layout.add_widget(self.l_label)
+        self.layout.add_widget(self.s_label)
         
-
+      
+       
 
 class enterApps(GridLayout):
     def __init__(self,**kwargs):
@@ -366,7 +371,6 @@ class enterApps(GridLayout):
         self.submitButton.background_color = [float(r)/255,float(g)/255,float(b)/255,1]
         self.submitButton.bind(on_press=self.submit_info) # When button is pressed, will go to method submitInfo
         self.add_widget(self.submitButton)
-
     def submit_info(self,instance):
         # Get all of the values from input
         popup = Popup(title='Submission Successful!',content=Button(text='Potential Job Application successfully stored. Click to close!'),size_hint=(None, None), size=(400, 400))
