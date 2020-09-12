@@ -50,8 +50,8 @@ class potentialAppsDatabase:
      def insertDB(self,potentialApps):
         self.cur.execute("INSERT INTO potentialApps VALUES (?,?,?,?)", (potentialApps.jobPosition, potentialApps.company, potentialApps.location, potentialApps.submission))
         self.conn.commit()
+        
       
-
      def printDB(self):
         self.cur.execute("SELECT * FROM potentialApps")
         print(self.cur.fetchall())
@@ -61,9 +61,11 @@ class potentialAppsDatabase:
         return self.cur.fetchall()
 
      def deleteAllData(self):
-        self.conn = sqlite3.connect('potentialAppsInfo.db')
+        
         self.cur.execute("DELETE FROM potentialApps")
         self.conn.commit()
+       
+
         
 
 
