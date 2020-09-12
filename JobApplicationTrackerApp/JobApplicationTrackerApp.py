@@ -103,6 +103,7 @@ class StartUpPage(GridLayout):
         jobApp.potentialApps.generateRows()
         
         
+        
 
 class ViewApplicationsPage(FloatLayout):
     # Create a page designated for the user to see all submissions made Bounds x[0 800] y [0 500
@@ -210,27 +211,34 @@ class ViewApplicationsPage(FloatLayout):
 class PotentialApplicationsPage(FloatLayout):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
+        self.generatePage()
+
+    def generatePage(self):
         # These lists are used to determine how to delete widgets
         self.p_labels = []
         self.c_labels = []
         self.l_labels = []
         self.s_labels = []
-       
+        self.optionButtons = []
         # Create all the labels for basic structure
-        self.titleLabel = Label(text="Potential Application Submissions", pos=(200,500), size=(400,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
-        self.positionLabel = Label(text="Position", pos=(0,400), size=(200,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
-        self.companyLabel = Label(text="Company", pos=(200,400), size=(200,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
-        self.locationLabel = Label(text="Location", pos=(400,400), size=(200,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
-        self.submissionLabel = Label(text="Completed?", pos=(600,400), size=(200,100), size_hint=(None,None),color = [0,0,0,1], font_size = '20sp')
-        self.homeButton = Button(text="Return Home", pos=(0,500),size=(200,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
+        self.titleLabel = Label(text="Potential Application Submissions", pos=(200,500), size=(800,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
+        self.positionLabel = Label(text="Position", pos=(0,400), size=(287.5,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
+        self.companyLabel = Label(text="Company", pos=(287.5,400), size=(287.5,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
+        self.locationLabel = Label(text="Location", pos=(575,400), size=(287.5,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
+        self.submissionLabel = Label(text="Completed?", pos=(862.5,400), size=(287.5,100), size_hint=(None,None),color = [0,0,0,1], font_size = '20sp')
+        self.homeButton = Button(text="Return Home", pos=(0,500),size=(300,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
         self.homeButton.bind(on_press=self.goHome)
-        self.clearAllButton = Button(text="Clear All", pos=(600,500), size=(200,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
+        self.clearAllButton = Button(text="Clear All", pos=(1000,500), size=(300,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
+        self.optionLabel = Label(text="Option", pos = (1150,400), size = (150,100),size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
         self.clearAllButton.bind(on_press=self.clearAll)
         
         # Use canvas to put labels in specific location
         with self.titleLabel.canvas.before:
             Color(33/255,80/255,228/255,1)
             Rectangle(pos=self.titleLabel.pos, size=self.titleLabel.size)
+        with self.optionLabel.canvas.before:
+            Color(33/255,80/255,228/255,1)
+            Rectangle(pos=self.optionLabel.pos, size=self.optionLabel.size)
         with self.positionLabel.canvas.before:
             Color(33/255,80/255,228/255,1)
             Rectangle(pos=self.positionLabel.pos, size=self.positionLabel.size)
@@ -249,7 +257,7 @@ class PotentialApplicationsPage(FloatLayout):
             Rectangle(pos=self.clearAllButton.pos, size=self.clearAllButton.size)
         with self.canvas.before:
             Color(216/255,69/255,30/255,1)
-            Rectangle(pos=(0,0), size=(1000,400))
+            Rectangle(pos=(0,0), size=(1300,400))
 
         # Put all widgets into  float layout. None of these widgets will change whether new material is added or deleted
         self.add_widget(self.titleLabel)
@@ -259,6 +267,7 @@ class PotentialApplicationsPage(FloatLayout):
         self.add_widget(self.submissionLabel)
         self.add_widget(self.homeButton)
         self.add_widget(self.clearAllButton)
+        self.add_widget(self.optionLabel)
 
         # Create a scroll object and settings
         self.scroll = ScrollView()
@@ -266,20 +275,23 @@ class PotentialApplicationsPage(FloatLayout):
         self.scroll.scroll_timeout = 200
         self.scroll.size=(Window.width,Window.height)
         self.scroll.pos_hint={'top': .6665, 'center_x':0.5}
-        self.scroll.bar_color=[0,0,0,1]
-        self.scroll.bar_inactive_color = [0,0,0,1]
-        self.scroll.bar_width = 10
-        self.scroll.scroll_type=['bars', 'content']
+        self.scroll.bar_color=[0,0,0,0]
+        self.scroll.bar_inactive_color = [0,0,0,0]
+        self.scroll.bar_width = 20
+        self.scroll.scroll_type=['bars','content']
         
         self.scroll.do_scroll_x = False
         self.scroll.do_scroll_y = True
-        self.layout = GridLayout(size_hint=(1, None), height=100, pos_hint={'top': .6665, 'center_x':0.5}, cols=4)
+        self.layout = GridLayout(size_hint=(1, None), height=100, pos_hint={'top': .6665, 'center_x':0.5}, cols=5)
         self.scroll.add_widget(self.layout)
         self.add_widget(self.scroll)
+        
         
 
     def goHome(self,instance):
         jobApp.screen_manager.current="start"
+        self.layout.clear_widgets()
+        self.layout.height = 100
 
     def clearAll(self,instance):
         # Create a popup with two buttons
@@ -299,12 +311,12 @@ class PotentialApplicationsPage(FloatLayout):
     def deleteAllEntries(self,instance):
         potentialAppsDB.deleteAllData()
         self.popup.dismiss()
-        for i in range(self.length):
-            self.a_layout.clear_widgets([self.p_labels[i], self.l_labels[i], self.s_labels[i], self.c_labels[i]])
+        self.clear_widgets()
         self.p_labels = []
         self.c_labels = []
         self.l_labels = []
         self.s_labels = []
+        self.generatePage()
         
     def generateRows(self):
         self.allData = potentialAppsDB.getAllData()
@@ -320,18 +332,23 @@ class PotentialApplicationsPage(FloatLayout):
         self.c_label = Label(text=str(allData[1]),color = [0,0,0,1], font_size = '20sp')
         self.l_label = Label(text=str(allData[2]),color = [0,0,0,1], font_size = '20sp')
         self.s_label = Label(text=str(allData[3]),color = [0,0,0,1], font_size = '20sp')
+        self.optionButton = Button(text="Delete/Edit",color = [0,0,0,1], font_size = '20sp', size = (150,100), size_hint=(None,None))
         self.p_labels.append(self.p_label)
         self.l_labels.append(self.l_label)
         self.c_labels.append(self.c_label)
         self.s_labels.append(self.s_label)
+        self.optionButtons.append(self.optionButton)
+        
         # Create Recntangle and Change Color for each row
        
         # Change current position for next row. Add Labels to FloatLayout
+        print(self.layout.height)
         self.layout.height += 100
         self.layout.add_widget(self.p_label)
         self.layout.add_widget(self.c_label)
         self.layout.add_widget(self.l_label)
         self.layout.add_widget(self.s_label)
+        self.layout.add_widget(self.optionButton)
         
       
        
@@ -395,6 +412,7 @@ class enterApps(GridLayout):
 
 class JobTrackerApp(App):
     def build(self):
+        Window.size=(1300,600)
         # Screen Manager manages all the screens in the application
         self.screen_manager = ScreenManager()
         #self.kvFile = Builder.load_file("C:\\Users\\18186\\source\\repos\\JobApplicationTrackerApp\\JobApplicationTrackerApp\\PotentialApplicationsPage.kv")
