@@ -211,10 +211,12 @@ class ViewApplicationsPage(FloatLayout):
 class PotentialApplicationsPage(FloatLayout):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
+        self.index = 0
         self.generatePage()
 
     def generatePage(self):
         # These lists are used to determine how to delete widgets
+        self.index = 0
         self.p_labels = []
         self.c_labels = []
         self.l_labels = []
@@ -285,9 +287,7 @@ class PotentialApplicationsPage(FloatLayout):
         self.layout = GridLayout(size_hint=(1, None), height=100, pos_hint={'top': .6665, 'center_x':0.5}, cols=5)
         self.scroll.add_widget(self.layout)
         self.add_widget(self.scroll)
-        
-        
-
+      
     def goHome(self,instance):
         jobApp.screen_manager.current="start"
         self.layout.clear_widgets()
@@ -312,19 +312,24 @@ class PotentialApplicationsPage(FloatLayout):
         potentialAppsDB.deleteAllData()
         self.popup.dismiss()
         self.clear_widgets()
+        self.generatePage()
+        
+    def generateRows(self):
         self.p_labels = []
         self.c_labels = []
         self.l_labels = []
         self.s_labels = []
-        self.generatePage()
-        
-    def generateRows(self):
+        self.optionButtons = []
         self.allData = potentialAppsDB.getAllData()
         self.length = len(self.allData)
+        print(self.length)
+        print(self.allData)
+        self.index = 0
         for i in self.allData:
             self.addRows(i)
+            self.index += 1
         self.allData = None
-       
+        
 
     def addRows(self,allData):
         # Create labels that will hold the actual values from database
@@ -332,23 +337,48 @@ class PotentialApplicationsPage(FloatLayout):
         self.c_label = Label(text=str(allData[1]),color = [0,0,0,1], font_size = '20sp')
         self.l_label = Label(text=str(allData[2]),color = [0,0,0,1], font_size = '20sp')
         self.s_label = Label(text=str(allData[3]),color = [0,0,0,1], font_size = '20sp')
-        self.optionButton = Button(text="Delete/Edit",color = [0,0,0,1], font_size = '20sp', size = (150,100), size_hint=(None,None))
+        self.optionButton = Button(text="Delete/Edit",color = [0,0,0,1], font_size = '20sp', size = (150,100), size_hint=(None,None), id = str(self.index))
+        print(self.index)
+        self.optionButton.bind(on_press=self.Options)
         self.p_labels.append(self.p_label)
         self.l_labels.append(self.l_label)
         self.c_labels.append(self.c_label)
         self.s_labels.append(self.s_label)
         self.optionButtons.append(self.optionButton)
-        
-        # Create Recntangle and Change Color for each row
-       
         # Change current position for next row. Add Labels to FloatLayout
-        print(self.layout.height)
         self.layout.height += 100
         self.layout.add_widget(self.p_label)
         self.layout.add_widget(self.c_label)
         self.layout.add_widget(self.l_label)
         self.layout.add_widget(self.s_label)
         self.layout.add_widget(self.optionButton)
+
+    def Options(self,instance):
+        self.optionsPopup = Popup(title="Choose an option", size=(400,400), size_hint=(None,None))
+        buttonBox = BoxLayout()
+        deleteButton = Button(text="Delete")
+        editButton = Button(text="Edit")
+        deleteButton.bind(on_press=self.deleteSpecific)
+        editButton.bind(on_press=self.editSpecific)
+        buttonBox.add_widget(deleteButton)
+        buttonBox.add_widget(editButton)
+        self.optionsPopup.content = buttonBox
+        self.delete_editVal = int(instance.id)
+        self.optionsPopup.open()
+
+    def deleteSpecific(self,instance):
+        position = (self.p_labels[self.delete_editVal]).text
+        location = (self.l_labels[self.delete_editVal]).text
+        company = (self.c_labels[self.delete_editVal]).text
+        submission = (self.s_labels[self.delete_editVal]).text
+        potentialAppsDB.deleteSpecific(position,company,location,submission)
+        self.clear_widgets()
+        self.generatePage()
+        self.generateRows()
+        self.optionsPopup.dismiss()
+    
+    def editSpecific(self,instance):
+        pass
         
       
        
