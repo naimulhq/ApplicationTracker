@@ -33,12 +33,13 @@ class userInfoDatabase:
         self.cur.execute("DELETE FROM users")
         self.conn.commit()
 
-
+        # original dv name potentialAppsInfo.db
+        # Test DB is potentialInfo.db
 class potentialAppsDatabase:
      def __init__(self):
         self.conn = sqlite3.connect('potentialAppsInfo.db') # Creates a database connection. Either in memory or file storage. My implementation creates a db file to store data
         self.cur = self.conn.cursor() # Create a cursor which can be used to execute SQL statements
-
+        # submissionData holds Location
      def createDB(self):
         self.cur.execute("""CREATE TABLE IF NOT EXISTS potentialApps(
                 jobPosition text,
@@ -61,9 +62,15 @@ class potentialAppsDatabase:
         return self.cur.fetchall()
 
      def deleteAllData(self):
-        
         self.cur.execute("DELETE FROM potentialApps")
         self.conn.commit()
+
+     def deleteSpecific(self,pos,com,sub,loc):
+         print(pos,com,sub,loc)
+         str = "DELETE FROM potentialApps WHERE (jobPosition = '{w}' AND company = '{x}' AND submissionData = '{z}' AND submitted = '{y}')".format(w=pos,x=com,y=loc,z=sub)
+         print(str)
+         self.cur.execute(str)
+         self.conn.commit()
        
 
         
