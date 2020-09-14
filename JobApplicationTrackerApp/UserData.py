@@ -1,8 +1,10 @@
 class UserData:
-    def __init__(self, jobPosition, company, submittedData):
+    def __init__(self, jobPosition, company, notified, interview, accepted):
         self.jobPosition = jobPosition
         self.company = company
-        self.submittedData = submittedData
+        self.notified = notified
+        self.interview = interview
+        self.accepted = accepted
     
 class PotentialApps:
     def __init__(self,jobPosition, company, location, submission):
