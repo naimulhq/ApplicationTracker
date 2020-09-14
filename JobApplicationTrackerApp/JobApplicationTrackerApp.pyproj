@@ -25,9 +25,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="JobApplicationTrackerApp.py" />
-    <Compile Include="module1.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="UserData.py">
       <SubType>Code</SubType>
     </Compile>
