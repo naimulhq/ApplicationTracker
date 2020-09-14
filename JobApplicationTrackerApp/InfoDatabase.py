@@ -4,21 +4,23 @@ from UserData import PotentialApps
 
 class userInfoDatabase:
     def __init__(self):
-        self.conn = sqlite3.connect('userInfo.db') # Creates a database connection. Either in memory or file storage. My implementation creates a db file to store data
+        self.conn = sqlite3.connect('userTestInfo.db') # Creates a database connection. Either in memory or file storage. My implementation creates a db file to store data
         self.cur = self.conn.cursor() # Create a cursor which can be used to execute SQL statements
+        self.createDB()
 
     def createDB(self):
         self.cur.execute("""CREATE TABLE IF NOT EXISTS users(
                 jobPosition text,
                 company text,
-                submissionData text
+                notified text,
+                interview text,
+                accepted text
                 )""")
 
     def insertDB(self,userdata):
-        self.conn = sqlite3.connect('userInfo.db')
-        self.cur.execute("INSERT INTO users VALUES (?,?,?)", (userdata.jobPosition, userdata.company, userdata.submittedData))
+        self.cur.execute("INSERT INTO users VALUES (?,?,?,?,?)", (userdata.jobPosition, userdata.company, userdata.notified, userdata.interview, userdata.accepted))
         self.conn.commit()
-        self.conn.close()
+        
 
     def printDB(self):
         self.cur.execute("SELECT * FROM users")
@@ -29,16 +31,22 @@ class userInfoDatabase:
         return self.cur.fetchall()
 
     def deleteAllData(self):
-        self.conn = sqlite3.connect('userInfo.db')
         self.cur.execute("DELETE FROM users")
         self.conn.commit()
 
         # original dv name potentialAppsInfo.db
         # Test DB is potentialInfo.db
+
+    def deleteSpecific(self,pos,com,notified,interview,accepted):
+         str = "DELETE FROM users WHERE (jobPosition = '{v}' AND company = '{w}' AND notified = '{x}' AND interview = '{y}' AND accepted = '{z}')".format(v=pos,w=com,x=notified,y=interview,z=accepted)
+         self.cur.execute(str)
+         self.conn.commit()
+
 class potentialAppsDatabase:
      def __init__(self):
-        self.conn = sqlite3.connect('potentialAppsInfo.db') # Creates a database connection. Either in memory or file storage. My implementation creates a db file to store data
+        self.conn = sqlite3.connect('potentialInfo.db') # Creates a database connection. Either in memory or file storage. My implementation creates a db file to store data
         self.cur = self.conn.cursor() # Create a cursor which can be used to execute SQL statements
+        self.createDB()
         # submissionData holds Location
      def createDB(self):
         self.cur.execute("""CREATE TABLE IF NOT EXISTS potentialApps(
@@ -66,9 +74,7 @@ class potentialAppsDatabase:
         self.conn.commit()
 
      def deleteSpecific(self,pos,com,sub,loc):
-         print(pos,com,sub,loc)
          str = "DELETE FROM potentialApps WHERE (jobPosition = '{w}' AND company = '{x}' AND submissionData = '{z}' AND submitted = '{y}')".format(w=pos,x=com,y=loc,z=sub)
-         print(str)
          self.cur.execute(str)
          self.conn.commit()
        
