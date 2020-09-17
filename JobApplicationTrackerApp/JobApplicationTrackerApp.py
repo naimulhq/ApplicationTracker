@@ -129,6 +129,7 @@ class ViewApplicationsPage(FloatLayout):
     # Create a page designated for the user to see all submissions made Bounds x[0 800] y [0 500
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
+        self.length = len(db.getAllData())
         self.generatePage()
     
     def generatePage(self):
@@ -140,7 +141,7 @@ class ViewApplicationsPage(FloatLayout):
         self.s_labels = []
         self.optionButtons = []
         # Create all the labels for basic structure
-        self.titleLabel = Label(text="Potential Application Submissions", pos=(200,500), size=(800,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
+        self.titleLabel = Label(text="Application Submissions\nTotal: " + str(self.length), pos=(200,500), size=(800,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
         self.positionLabel = Label(text="Position", pos=(0,400), size=(300,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
         self.companyLabel = Label(text="Company", pos=(300,400), size=(300,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
         self.notifiedLabel = Label(text="Notified?", pos=(600,400), size=(175,100), size_hint=(None,None), color = [0,0,0,1], font_size = '20sp')
@@ -244,6 +245,8 @@ class ViewApplicationsPage(FloatLayout):
         self.a_labels = []
         self.optionButtons = []
         self.allData = db.getAllData()
+        self.length = len(self.allData)
+        self.titleLabel.text="Application Submissions\nTotal: " + str(self.length)
         self.index = 0
         for i in self.allData:
             self.addRows(i)
