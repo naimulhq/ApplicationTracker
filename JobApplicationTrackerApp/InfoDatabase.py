@@ -4,7 +4,7 @@ from UserData import PotentialApps
 
 class userInfoDatabase:
     def __init__(self):
-        self.conn = sqlite3.connect('userTestInfo.db') # Creates a database connection. Either in memory or file storage. My implementation creates a db file to store data
+        self.conn = sqlite3.connect('userInfo.db') # Creates a database connection. Either in memory or file storage. My implementation creates a db file to store data
         self.cur = self.conn.cursor() # Create a cursor which can be used to execute SQL statements
         self.createDB()
 
@@ -44,7 +44,7 @@ class userInfoDatabase:
 
 class potentialAppsDatabase:
      def __init__(self):
-        self.conn = sqlite3.connect('potentialInfo.db') # Creates a database connection. Either in memory or file storage. My implementation creates a db file to store data
+        self.conn = sqlite3.connect('potentialAppsInfo.db') # Creates a database connection. Either in memory or file storage. My implementation creates a db file to store data
         self.cur = self.conn.cursor() # Create a cursor which can be used to execute SQL statements
         self.createDB()
         # submissionData holds Location
